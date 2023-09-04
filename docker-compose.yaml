@@ -1,0 +1,40 @@
+version: '1.0'
+services:
+  backend:
+    container_name: sqlc-tutorial
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      POSTGRES_DB: pqgotest
+      POSTGRES_HOST: sqlcExample
+      POSTGRES_USER: pqgotest
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_PORT: 5438
+    networks:
+      - my_network      
+
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    container_name: sqlcExample
+    volumes:
+      - .dbdata:/var/lib/postgres
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - '5438:5438'
+    environment:
+      - POSTGRES_DB=pqgotest
+      - POSTGRES_USER=pqgotest
+      - POSTGRES_PASSWORD=mysecretpassword
+    command: -p 5438
+    networks:
+      - my_network    
+
+networks:
+  my_network:
+    driver: bridge
